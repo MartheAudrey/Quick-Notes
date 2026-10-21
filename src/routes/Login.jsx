@@ -1,10 +1,43 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Notebook } from 'lucide-react'
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  //Firebase variables and function
+    const [loading, setLoading] = useState();
+    const [error, setError] = useState();
+  
+    const {login} = useAuth();
+    const navigate = useNavigate();
+
+
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError('');
+
+      if(!email || !password){
+        setError('Please fill in all fields.')
+      }
+
+      if(password.length < 6){
+        setError('Password must be at least 6 characters.')
+      }
+
+      try {
+        setLoading(true);
+        await login(email, password);
+        navigate('/dashboard');
+      }catch (err) {
+        setError('Failed to login: ' + (err.message || 'Please try again'))
+      } finally {
+        setLoading(false);
+      }
+  }
 
   return (
     <div className='max-w-md mx-auto mt-10'>
@@ -15,21 +48,30 @@ function Login() {
           <p className='text-gray-600'>
             Sign in to access your notes.
           </p>
+        </div>
+
+        {
+          error && (
+            <div className='bg-red-50 text-red-700 p-3 rounded-md mb-4 text-sm'>
+              {error}
+            </div>
+          )
+        }
+
           <form>
             <div className='mb-4'>
               <label htmlFor='email' className='block text-sm font-medium text-gray-700 mb-1'>Email</label>
-              <input id='email' type='email' value={email} className='' onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo500" placeholder="you@example.com" required/>
+              <input id='email' type='email' value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo500" placeholder="you@example.com" required/>
             </div>
             <div className='mb-4'>
               <label htmlFor='password' className='block text-sm font-medium text-gray-700 mb-1'>Password</label>
               <input id='password' type='password' value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo500"  placeholder="*********" required/>
             </div>
-            <button className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" type='submit'>Sign in</button>
+            <button className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" type='submit' disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
           </form>
           <div className='mt-6 text-center text-sm'>
             <p className='text-gray-600'>Don't have an account yet? <Link to="/signup" className='text-indigo-600 hover:text-indigo-800 font-medium'>Signup</Link></p>
           </div>
-        </div>
       </div>
     </div>
   )
