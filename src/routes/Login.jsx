@@ -33,7 +33,7 @@ function Login() {
         await login(email, password);
         navigate('/dashboard');
       }catch (err) {
-        setError('Failed to login: ' + (err.message || 'Please try again'))
+        setError('Failed to login: ' + (err.message || 'Please try again'));
       } finally {
         setLoading(false);
       }
@@ -58,7 +58,7 @@ function Login() {
           )
         }
 
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className='mb-4'>
               <label htmlFor='email' className='block text-sm font-medium text-gray-700 mb-1'>Email</label>
               <input id='email' type='email' value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo500" placeholder="you@example.com" required/>
